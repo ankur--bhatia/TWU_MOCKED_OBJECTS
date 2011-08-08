@@ -14,7 +14,7 @@ public class AccountTest {
 
     @Test
     public void testGetAccountType() throws Exception {
-        account = new Account("232424", AccountType.SAVINGS,new Money(new BigDecimal(23), Currency.CAD));
+        account = new Account("232424", AccountType.SAVINGS, Currency.INR, new Money(new BigDecimal(23), Currency.CAD));
         Assert.assertEquals(account.getAccountType(),AccountType.SAVINGS);
     }
 }

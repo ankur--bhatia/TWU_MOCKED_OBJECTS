@@ -6,6 +6,7 @@ import main.AccountManager.SavingsAccountService;
 import main.AccountManager.SweepAccountService;
 import main.domain.Account;
 import main.domain.AccountType;
+import main.domain.Currency;
 import main.domain.Money;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,14 +31,14 @@ public class AccountServiceFactoryTest {
     @Test
     public void testShouldCreateSavingsAccountServiceForSavingsAccountType()
     {
-        account = new Account("232425", AccountType.SAVINGS, accountBalance );
+        account = new Account("232425", AccountType.SAVINGS, Currency.INR, accountBalance );
         Assert.assertEquals(SavingsAccountService.class,accountServiceFactory.Create(account).getClass());
     }
 
     @Test
     public void testShouldCreateSweepInAccountServiceForSavingsAccountType()
     {
-        account = new Account("2424525", AccountType.SWEEP, accountBalance );
+        account = new Account("2424525", AccountType.SWEEP, Currency.INR, accountBalance );
         Assert.assertEquals(SweepAccountService.class,accountServiceFactory.Create(account).getClass());
     }
 
