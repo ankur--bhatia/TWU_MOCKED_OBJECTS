@@ -1,15 +1,12 @@
 package main.AccountManager;
 
 import main.domain.Account;
-import main.domain.Currency;
 import main.domain.Money;
 
 
 public abstract class AccountService {
 
     private Account account;
-
-    public abstract Currency currency();
 
 	public abstract void deposit(Money amount);
 

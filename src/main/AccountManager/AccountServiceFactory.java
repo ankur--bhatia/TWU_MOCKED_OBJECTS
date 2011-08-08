@@ -5,7 +5,7 @@ import main.domain.Account;
 public class AccountServiceFactory {
     public  AccountService Create(Account account)
     {
-        switch ( account.getAccountType())
+        switch (account.getAccountType())
         {
              case SAVINGS:
                  return new SavingsAccountService(account);

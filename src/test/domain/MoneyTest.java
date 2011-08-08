@@ -21,11 +21,11 @@ public class MoneyTest {
     }
 
     @Test
-    public void testMultiply()
+    public void testConvert()
     {
         Money money = new Money(new BigDecimal(12),Currency.CAD);
-        Money expectedProduct = new Money(new BigDecimal(24),Currency.CAD);
-        Money product = money.multiply(new BigDecimal(2));
+        Money expectedProduct = new Money(new BigDecimal(540),Currency.INR);
+        Money product = money.convert(new BigDecimal(45), Currency.INR);
         Assert.assertEquals(expectedProduct,product);
     }
 

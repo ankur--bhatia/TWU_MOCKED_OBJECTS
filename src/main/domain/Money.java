@@ -3,17 +3,31 @@ package main.domain;
 import java.math.BigDecimal;
 
 public class Money {
-    private BigDecimal value;
-    private Currency currency;
+    private final BigDecimal value;
+    private final Currency currency;
 
     public Money(BigDecimal value, Currency currency) {
         this.value = value;
         this.currency = currency;
     }
 
-    public Money multiply(BigDecimal multiplier)
+    public Currency getCurrency()
     {
-       return new Money(value.multiply(multiplier),currency);
+        return currency;
+    }
+
+
+    public Money convert(BigDecimal conversionRate, Currency toCurrency)
+    {
+       return new Money(value.multiply(conversionRate),currency);
+    }
+
+    @Override
+    public String toString() {
+        return "Money{" +
+                "value=" + value +
+                ", currency=" + currency +
+                '}';
     }
 
     @Override
