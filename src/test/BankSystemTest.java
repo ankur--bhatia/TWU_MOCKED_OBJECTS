@@ -50,6 +50,5 @@ public class BankSystemTest {
         Money expectedBalanceInToAccount = new Money(new BigDecimal(125),Currency.CAD);
         Assert.assertEquals(expectedBalanceInToAccount,toAccount.getBalance());
         Assert.assertEquals(expectedBalanceInFromAccount,fromAccount.getBalance());
-
     }
 }

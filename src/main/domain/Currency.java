@@ -17,4 +17,15 @@ public class Currency {
                 "currencyCode='" + currencyCode + '\'' +
                 '}';
     }
+    public static Currency parse(String currency)
+    {
+        currency = currency.trim();
+        if("CAD".compareToIgnoreCase(currency) == 0)
+           return CAD;
+       if("USD".compareToIgnoreCase(currency) == 0)
+           return USD;
+       if("INR".compareToIgnoreCase(currency) == 0)
+           return INR;
+        throw new RuntimeException("Invalid Currency");
+    }
 }
