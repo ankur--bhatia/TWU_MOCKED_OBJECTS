@@ -17,11 +17,11 @@ public class Menu {
         this.userInterface = userInterface;
     }
 
-    public void mainMenu() throws InsufficientFundsException {
+    public void mainMenu()  {
         boolean keepContinuing = true;
         do{
-            userInterface.print("1 - Transfer");
-            userInterface.print("0 - Exit");
+            userInterface.print("1 - Transfer Funds\n");
+            userInterface.print("0 - Exit\n");
             int userOption = userInterface.getOptionNumber();
 
             switch (userOption)
@@ -36,7 +36,7 @@ public class Menu {
         while (keepContinuing);
     }
 
-    private void  transferMoneyMenu() throws InsufficientFundsException {
+    private void  transferMoneyMenu()  {
         userInterface.print("From Account Number: ");
         String fromAccount = userInterface.getUserInput();
         userInterface.print("To Account Number: ");
@@ -46,7 +46,14 @@ public class Menu {
         userInterface.print("Amount Currency: ");
         String currency = userInterface.getUserInput();
         Money amountToTransfer = new Money(new BigDecimal(amountInString), Currency.parse(currency));
+        try
+        {
         bankSystem.transfer(fromAccount,toAccount,amountToTransfer);
+        }
+        catch (InsufficientFundsException ex)
+        {
+            userInterface.print("Insufficient Funds to complete the transfer");
+        }
     }
 
 

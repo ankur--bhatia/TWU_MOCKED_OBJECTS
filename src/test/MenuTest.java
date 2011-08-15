@@ -34,7 +34,7 @@ public class MenuTest {
     public void testMainMenu() throws Exception {
         when(userInterface.getOptionNumber()).thenReturn(0);
         menu.mainMenu();
-        verify(userInterface).print("1 - Transfer");
+        verify(userInterface).print("1 - Transfer Funds");
         verify(userInterface).print("0 - Exit");
     }
 
