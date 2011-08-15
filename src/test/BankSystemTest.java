@@ -1,101 +1,55 @@
 package test;
 
-import main.AccountManager.AccountService;
-import main.AccountManager.AccountServiceFactory;
+import junit.framework.Assert;
 import main.BankSystem;
-import main.ForeignExchangeManager.IForeignExchangeService;
+import main.Repositories.AccountRepository;
 import main.domain.Account;
-import main.domain.AccountType;
 import main.domain.Currency;
 import main.domain.Money;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.MockitoAnnotations;
+import org.junit.Before;
+
 
 import java.math.BigDecimal;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class BankSystemTest {
 
-    @MockitoAnnotations.Mock
-    private AccountService accountServiceMockForFromAccount;
-
-    @MockitoAnnotations.Mock
-    private AccountService accountServiceMockForToAccount;
-
-    @MockitoAnnotations.Mock
-    private AccountServiceFactory accountServiceFactoryMock;
-
-    @MockitoAnnotations.Mock
-    private IForeignExchangeService foreignExchangeService;
-
-
     private BankSystem bankSystem;
+    private AccountRepository accountRepository;
+    private final String toAccountId = "123";
+    private final String fromAccountId = "567";
     private Account toAccount;
     private Account fromAccount;
-    private BigDecimal conversionRateFromCADToINR;
-    private BigDecimal conversionRateFromINRToCAD;
+    private Money amountToTransfer;
 
     @Before
     public void setUp()
     {
-       MockitoAnnotations.initMocks(this);
-       bankSystem = new BankSystem(accountServiceFactoryMock, foreignExchangeService);
-
-       conversionRateFromCADToINR = new BigDecimal(45);
-       conversionRateFromINRToCAD = new BigDecimal(0.022);
-    }
-
-
-    @Test
-    public void ShouldTransferTheAmountBetweenTwoAccountsOfSameCurrency() throws Exception {
-        Money amountToTransfer = new Money(new BigDecimal(30), Currency.INR);
-        toAccount = new Account("1234", AccountType.SAVINGS, Currency.INR,new Money(new BigDecimal(50),Currency.INR));
-        fromAccount = new Account("4567", AccountType.SAVINGS, Currency.INR, new Money(new BigDecimal(40),Currency.INR));
-
-        when(accountServiceFactoryMock.Create(toAccount)).thenReturn(accountServiceMockForToAccount);
-        when(accountServiceFactoryMock.Create(fromAccount)).thenReturn(accountServiceMockForFromAccount);
-
-        bankSystem.transfer(fromAccount, toAccount,amountToTransfer);
-        verify(accountServiceMockForToAccount).deposit(amountToTransfer);
-        verify(accountServiceMockForFromAccount).withdraw(amountToTransfer);
+        toAccount = new Account(toAccountId, Currency.CAD,new Money(new BigDecimal(100),Currency.CAD));
+        fromAccount = new Account(fromAccountId,Currency.CAD,new Money(new BigDecimal(50),Currency.CAD));
+        accountRepository = mock(AccountRepository.class);
+        bankSystem = new BankSystem(accountRepository);
     }
 
     @Test
-    public void ShouldDepositTheConvertedAmountWhenTransferBetweenTwoAccountsOfDifferentCurrency() throws Exception {
-       Money amountToTransfer = new Money(new BigDecimal(30),Currency.CAD);
-       Money convertedAmountToTransfer = amountToTransfer.convert(conversionRateFromCADToINR,Currency.INR);
-       toAccount = new Account("1234", AccountType.SAVINGS, Currency.INR,new Money(new BigDecimal(50),Currency.INR));
-       fromAccount = new Account("4567", AccountType.SAVINGS, Currency.CAD, new Money(new BigDecimal(40),Currency.CAD));
+    public void testTransfer() throws Exception {
 
-       when(accountServiceFactoryMock.Create(toAccount)).thenReturn(accountServiceMockForToAccount);
-       when(accountServiceFactoryMock.Create(fromAccount)).thenReturn(accountServiceMockForFromAccount);
-       when(foreignExchangeService.conversionRate(Currency.CAD, Currency.INR)).thenReturn(conversionRateFromCADToINR);
+        when(accountRepository.load(toAccountId)).thenReturn(toAccount);
+        when(accountRepository.load(fromAccountId)).thenReturn(fromAccount);
+        amountToTransfer  = new Money(new BigDecimal(25),Currency.CAD);
 
-       bankSystem.transfer(fromAccount,toAccount,amountToTransfer);
-       verify(accountServiceMockForToAccount).deposit(convertedAmountToTransfer);
-       verify(accountServiceMockForFromAccount).withdraw(amountToTransfer);
+        bankSystem.transfer(fromAccountId,toAccountId,amountToTransfer);
+
+        verify(accountRepository).load(toAccountId);
+        verify(accountRepository).load(fromAccountId);
+        verify(accountRepository).update(toAccount);
+        verify(accountRepository).update(fromAccount);
+        Money expectedBalanceInFromAccount = new Money(new BigDecimal(25), Currency.CAD);
+        Money expectedBalanceInToAccount = new Money(new BigDecimal(125),Currency.CAD);
+        Assert.assertEquals(expectedBalanceInToAccount,toAccount.getBalance());
+        Assert.assertEquals(expectedBalanceInFromAccount,fromAccount.getBalance());
+
     }
-
-    @Test
-    public void ShouldWithdrawTheConvertedAmountWhenTransferBetweenTwoAccountOfDifferentCurrency() throws Exception {
-       Money amountToTransfer = new Money(new BigDecimal(450),Currency.INR);
-       Money convertedAmountToWithdraw = amountToTransfer.convert(conversionRateFromINRToCAD,Currency.CAD);
-       toAccount = new Account("1234", AccountType.SAVINGS, Currency.INR,new Money(new BigDecimal(50),Currency.INR));
-       fromAccount = new Account("4567", AccountType.SAVINGS, Currency.CAD, new Money(new BigDecimal(40),Currency.CAD));
-
-       when(accountServiceFactoryMock.Create(toAccount)).thenReturn(accountServiceMockForToAccount);
-       when(accountServiceFactoryMock.Create(fromAccount)).thenReturn(accountServiceMockForFromAccount);
-       when(foreignExchangeService.conversionRate(Currency.INR, Currency.CAD)).thenReturn(conversionRateFromINRToCAD);
-
-       bankSystem.transfer(fromAccount,toAccount,amountToTransfer);
-       verify(accountServiceMockForToAccount).deposit(amountToTransfer);
-       verify(accountServiceMockForFromAccount).withdraw(convertedAmountToWithdraw);
-    }
-
-
-
-
 }

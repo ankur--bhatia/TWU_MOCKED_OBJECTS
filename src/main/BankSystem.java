@@ -1,42 +1,30 @@
 package main;
 
-import main.AccountManager.AccountService;
-import main.AccountManager.AccountServiceFactory;
-import main.AccountManager.InsufficientFundsException;
-import main.ForeignExchangeManager.IForeignExchangeService;
+import main.Repositories.AccountRepository;
 import main.domain.Account;
+import main.domain.InsufficientFundsException;
 import main.domain.Money;
-
-import java.math.BigDecimal;
 
 public class BankSystem {
 
-    private final AccountServiceFactory accountServiceFactory;
-    private final IForeignExchangeService foreignExchangeService;
 
-    public BankSystem(AccountServiceFactory accountServiceFactory, IForeignExchangeService foreignExchangeService) {
-        this.accountServiceFactory = accountServiceFactory;
-        this.foreignExchangeService = foreignExchangeService;
+    private final AccountRepository accountRepository;
+
+    public BankSystem(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
     }
 
-    public void transfer(Account from, Account to, Money money) throws InsufficientFundsException {
-        AccountService accountServiceForFromAccount = accountServiceFactory.Create(from);
-        AccountService accountServiceForToAccount = accountServiceFactory.Create(to);
+    public void transfer(String fromAccountId, String toAccountId, Money money) throws InsufficientFundsException {
 
-        Money amountToDeposit = money;
-        Money amountToWithdraw = money;
+        Account fromAccount = accountRepository.load(fromAccountId);
+        Account toAccount = accountRepository.load(toAccountId);
 
-        if (from.isConversionRequiredForTransactionIn(money.getCurrency())) {
-            BigDecimal conversionRate = foreignExchangeService.conversionRate(money.getCurrency(), from.getInCurrency());
-            amountToWithdraw = money.convert(conversionRate, from.getInCurrency());
-        }
+        fromAccount.withdraw(money);
+        toAccount.deposit(money);
 
-        if (to.isConversionRequiredForTransactionIn(money.getCurrency())) {
-            BigDecimal conversionRate = foreignExchangeService.conversionRate(money.getCurrency(), to.getInCurrency());
-            amountToDeposit = money.convert(conversionRate, to.getInCurrency());
-        }
+        accountRepository.update(fromAccount);
+        accountRepository.update(toAccount);
 
-        accountServiceForFromAccount.withdraw(amountToWithdraw);
-        accountServiceForToAccount.deposit(amountToDeposit);
     }
+
 }

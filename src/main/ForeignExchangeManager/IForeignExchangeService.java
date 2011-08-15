@@ -6,5 +6,5 @@ import java.math.BigDecimal;
 
 public interface IForeignExchangeService {
 
-	BigDecimal conversionRate(Currency from, Currency to);
+    BigDecimal conversionRate(Currency from, Currency to);
 }

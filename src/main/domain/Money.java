@@ -3,23 +3,13 @@ package main.domain;
 import java.math.BigDecimal;
 
 public class Money {
+    public static final String errorMessageForDifferentCurrencyOperation = "Money does not support operations on different currency";
     private final BigDecimal value;
     private final Currency currency;
 
     public Money(BigDecimal value, Currency currency) {
         this.value = value;
         this.currency = currency;
-    }
-
-    public Currency getCurrency()
-    {
-        return currency;
-    }
-
-
-    public Money convert(BigDecimal conversionRate, Currency toCurrency)
-    {
-       return new Money(value.multiply(conversionRate),currency);
     }
 
     @Override
@@ -56,5 +46,35 @@ public class Money {
         int result = value != null ? value.hashCode() : 0;
         result = 31 * result + (currency != null ? currency.hashCode() : 0);
         return result;
+    }
+
+    public Money convert(BigDecimal conversionRate, Currency toCurrency) {
+        return new Money(value.multiply(conversionRate), toCurrency);
+    }
+
+    public Money add(Money rhs) {
+        if (!currency.equals(rhs.currency)) {
+            throw new RuntimeException(errorMessageForDifferentCurrencyOperation);
+        }
+        return new Money(this.value.add(rhs.value), currency);
+    }
+
+    public Money subtract(Money rhs) {
+        if (!currency.equals(rhs.currency)) {
+            throw new RuntimeException(errorMessageForDifferentCurrencyOperation);
+        }
+        return new Money(this.value.subtract(rhs.value), currency);
+    }
+
+    public boolean greaterThanEqualTo(Money rhs) {
+        if (!currency.equals(rhs.currency)) {
+            throw new RuntimeException(errorMessageForDifferentCurrencyOperation);
+        }
+        return this.value.compareTo(rhs.value) >= 0;
+    }
+
+
+    public boolean isSameCurrency(Currency currency) {
+        return this.currency.equals(currency);
     }
 }
